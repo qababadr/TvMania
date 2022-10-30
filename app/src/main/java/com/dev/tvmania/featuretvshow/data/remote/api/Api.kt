@@ -23,7 +23,7 @@ interface Api {
      *  Get the detail about a tv show with cast
      *
      *  @param id [Int] the id of the tv show
-     *  @return [TvShowDetailDto]
+     *  @return [TvShowDetailDto]?
      */
     @GET("shows/{id}?embed=cast")
     suspend fun getTvShowDetail(
