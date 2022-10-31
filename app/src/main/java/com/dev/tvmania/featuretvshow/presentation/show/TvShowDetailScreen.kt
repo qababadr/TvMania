@@ -45,7 +45,8 @@ fun TvShowDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(state = rememberScrollState())
+            .verticalScroll(state = rememberScrollState()),
+        verticalArrangement = Arrangement.Center
     ) {
         if (isLoading) {
             TopBar(
@@ -167,7 +168,8 @@ fun TvShowDetailScreen(
                         ) {
                             NetworkImage(
                                 url = actor.image?.medium ?: DEFAULT_ACTOR_IMAGE_URL,
-                                modifier = Modifier.requiredHeight(height = 160.dp)
+                                modifier = Modifier
+                                    .requiredHeight(height = 160.dp)
                                     .clip(shape = MaterialTheme.shapes.large),
                                 crossFade = 1000,
                                 contentScale = ContentScale.Crop,
@@ -201,7 +203,9 @@ fun TvShowDetailScreen(
                     )
                 }
 
-            } ?: WarningMessage(text = stringResource(id = R.string.err_tv_show_not_found))
+            } ?: Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                WarningMessage(text = stringResource(id = R.string.err_tv_show_not_found))
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.dev.tvmania.featuretvshow.data.remote.dto.tvshow
 
 import android.os.Parcelable
+import com.dev.tvmania.featuretvshow.data.local.entity.TvShowEntity
 import com.dev.tvmania.featuretvshow.domain.model.tvshow.TvShow
 import kotlinx.parcelize.Parcelize
 
@@ -25,14 +26,14 @@ data class TvShowDto(
         )
     }
 
-//    fun toTvShowEntity(): TvShowEntity{
-//        return TvShowEntity(
-//            id = id,
-//            name = name,
-//            rating = rating.average ?: 0.0,
-//            genres = genres,
-//            images = listOf(image.medium, image.original),
-//            updated = updated
-//        )
-//    }
+    fun toTvShowEntity(): TvShowEntity {
+        return TvShowEntity(
+            id = id,
+            name = name,
+            rating = rating.average ?: 0.0,
+            genres = genres,
+            images = listOf(image.medium, image.original),
+            updated = updated
+        )
+    }
 }

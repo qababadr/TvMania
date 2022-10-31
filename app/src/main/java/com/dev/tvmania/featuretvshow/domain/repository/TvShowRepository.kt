@@ -1,6 +1,7 @@
 package com.dev.tvmania.featuretvshow.domain.repository
 
 import androidx.paging.PagingData
+import com.dev.tvmania.featuretvshow.domain.model.tvshow.Image
 import com.dev.tvmania.featuretvshow.domain.model.tvshow.TvShow
 import com.dev.tvmania.featuretvshow.domain.model.tvshowdetail.TvShowDetail
 import com.dev.tvmania.util.Resource
@@ -26,4 +27,10 @@ interface TvShowRepository {
     suspend fun getTvShowDetail(id: Long): Resource<TvShowDetail?>
 
 
+    /**
+     *  Get 4 images to inject in carousel
+     *
+     *  @return [Flow]<[List]<[Image]>>
+     */
+    fun getCarouselImages(): Flow<List<Image>>
 }

@@ -1,14 +1,21 @@
 package com.dev.tvmania.di
 
+import android.app.Application
 import android.content.Context
+import androidx.room.Room
 import com.dev.tvmania.application.TvManiaApplication
+import com.dev.tvmania.featuretvshow.data.local.database.ControlledConverter
+import com.dev.tvmania.featuretvshow.data.local.database.TvManiaDatabase
 import com.dev.tvmania.featuretvshow.data.remote.api.Api
 import com.dev.tvmania.featuretvshow.data.repository.TvShowRepositoryImpl
 import com.dev.tvmania.featuretvshow.domain.repository.TvShowRepository
+import com.dev.tvmania.featuretvshow.domain.usecase.GetCarouselImages
 import com.dev.tvmania.featuretvshow.domain.usecase.GetTvShowDetail
 import com.dev.tvmania.featuretvshow.domain.usecase.GetTvShows
 import com.dev.tvmania.featuretvshow.domain.usecase.TvShowUseCases
 import com.dev.tvmania.util.ApiBuilder
+import com.dev.tvmania.util.TV_MANIA_DATABASE
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,8 +44,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesTvShowRepository(api: Api): TvShowRepository{
-        return TvShowRepositoryImpl(api = api)
+    fun providesTvShowRepository(api: Api, database: TvManiaDatabase): TvShowRepository{
+        return TvShowRepositoryImpl(api = api, database = database)
     }
 
     @Singleton
@@ -46,7 +53,20 @@ object AppModule {
     fun providesTvShowUseCases(repository: TvShowRepository): TvShowUseCases{
         return TvShowUseCases(
             getTvShows = GetTvShows(repository = repository),
-            getTvShowDetail = GetTvShowDetail(repository = repository)
+            getTvShowDetail = GetTvShowDetail(repository = repository),
+            getCarouselImages = GetCarouselImages(repository= repository)
         )
+    }
+
+    @Singleton
+    @Provides
+    fun providesTvManiaDatabase(application: Application): TvManiaDatabase{
+        return Room.databaseBuilder(
+            application,
+            TvManiaDatabase::class.java,
+            TV_MANIA_DATABASE
+        ).addTypeConverter(ControlledConverter(Gson()))
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }

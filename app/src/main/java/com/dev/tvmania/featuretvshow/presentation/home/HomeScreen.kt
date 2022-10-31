@@ -8,6 +8,8 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.dev.tvmania.R
+import com.dev.tvmania.ui.component.CarouselView
 import com.dev.tvmania.ui.component.PaginationStateHandler
 import com.dev.tvmania.ui.component.TvShowItem
 import com.dev.tvmania.ui.component.WarningMessage
@@ -31,6 +34,9 @@ fun HomeScreen(
 
     val tvShowsState = viewModel.tvShowsState
         .collectAsLazyPagingItems()
+
+    val carouselImages by viewModel.carouselImagesState
+        .collectAsState()
 
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -50,6 +56,17 @@ fun HomeScreen(
                         .padding(top = 12.dp),
                 )
             }
+        }
+
+        item {
+            CarouselView(
+                modifier = Modifier.requiredHeight(height = 260.dp)
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 20.dp, start = 16.dp, end = 16.dp),
+                urls = carouselImages.map { it.original },
+                shape = MaterialTheme.shapes.large,
+                crossFade = 1000
+            )
         }
 
         items(
@@ -79,7 +96,8 @@ fun HomeScreen(
                         trailingContent = {
                             Text(
                                 text  = stringResource(id = R.string.lbl_retry),
-                                modifier = Modifier.padding(start = 3.dp)
+                                modifier = Modifier
+                                    .padding(start = 3.dp)
                                     .clickable(role = Role.Button) { tvShowsState.retry() },
                                 textDecoration = TextDecoration.Underline,
                                 fontWeight = FontWeight.Bold,
