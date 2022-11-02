@@ -33,4 +33,27 @@ interface TvShowRepository {
      *  @return [Flow]<[List]<[Image]>>
      */
     fun getCarouselImages(): Flow<List<Image>>
+
+    /**
+     *  Get the cached tv show detail from database
+     *
+     *  @param id [Long]
+     *  @return [Flow]<[Resource]<[TvShowDetail]>>
+     */
+    fun getCachedTvShowDetail(id: Long): Flow<Resource<TvShowDetail>>
+
+    /**
+     *  Add or remove a tv show to/from bookmarks
+     *
+     *  @param tvShowId [Long]
+     */
+    suspend fun addOrRemoveTvShowBookmark(tvShowId: Long)
+
+    /**
+     *  Checks if the tv show is bookmarked or not
+     *
+     *  @param tvShowId [Long]
+     *  @return [Flow]<[Boolean]>
+     */
+    fun inBookMarks(tvShowId: Long): Flow<Boolean>
 }

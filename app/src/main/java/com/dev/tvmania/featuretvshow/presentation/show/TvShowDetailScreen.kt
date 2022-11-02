@@ -39,6 +39,9 @@ fun TvShowDetailScreen(
     val tvShowDetail by viewModel.tvShowDetailState
         .collectAsState()
 
+    val inBookmarks by viewModel.inBookmarksState
+        .collectAsState()
+
     val screenHeight = LocalContext.current.resources.displayMetrics.heightPixels.dp /
             LocalDensity.current.density
 
@@ -46,7 +49,6 @@ fun TvShowDetailScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(state = rememberScrollState()),
-        verticalArrangement = Arrangement.Center
     ) {
         if (isLoading) {
             TopBar(
@@ -87,6 +89,16 @@ fun TvShowDetailScreen(
                         modifier = Modifier.padding(vertical = 30.dp, horizontal = 18.dp),
                         leadingIcon = {
                             BackButton(onBackPress = { onBackPress() })
+                        },
+                        trailingIcon = {
+                            BookmarkButton(
+                                inBookmarks = inBookmarks,
+                                onClick = {
+                                    viewModel.addOrRemoveTvShowBookmark(
+                                        tvShowId = tvShow.id
+                                    )
+                                }
+                            )
                         }
                     )
                 }

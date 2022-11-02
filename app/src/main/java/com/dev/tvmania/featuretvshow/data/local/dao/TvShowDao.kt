@@ -6,6 +6,7 @@ import com.dev.tvmania.featuretvshow.data.local.entity.TvShowDetailEntity
 import com.dev.tvmania.featuretvshow.data.local.entity.TvShowEntity
 import com.dev.tvmania.featuretvshow.data.local.entity.TvShowPersonCrossRef
 import com.dev.tvmania.featuretvshow.data.local.entity.TvShowRemoteKeysEntity
+import com.dev.tvmania.featuretvshow.data.local.relation.TvShowWithDetails
 import com.dev.tvmania.util.TV_SHOWS_DETAIL_TABLE
 import com.dev.tvmania.util.TV_SHOWS_REMOTE_KEY_TABLE
 import com.dev.tvmania.util.TV_SHOWS_TABLE
@@ -43,4 +44,9 @@ interface TvShowDao {
 
     @Query("SELECT * FROM $TV_SHOWS_TABLE ORDER By random() LIMIT:limit")
     fun getRandomTvShows(limit: Int): Flow<List<TvShowEntity>>
+
+    @Transaction
+    @Query("SELECT * FROM $TV_SHOWS_TABLE WHERE id=:id")
+    fun getTvShowDetail(id: Long): Flow<TvShowWithDetails>
+
 }

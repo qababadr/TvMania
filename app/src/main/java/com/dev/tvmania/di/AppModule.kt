@@ -9,10 +9,7 @@ import com.dev.tvmania.featuretvshow.data.local.database.TvManiaDatabase
 import com.dev.tvmania.featuretvshow.data.remote.api.Api
 import com.dev.tvmania.featuretvshow.data.repository.TvShowRepositoryImpl
 import com.dev.tvmania.featuretvshow.domain.repository.TvShowRepository
-import com.dev.tvmania.featuretvshow.domain.usecase.GetCarouselImages
-import com.dev.tvmania.featuretvshow.domain.usecase.GetTvShowDetail
-import com.dev.tvmania.featuretvshow.domain.usecase.GetTvShows
-import com.dev.tvmania.featuretvshow.domain.usecase.TvShowUseCases
+import com.dev.tvmania.featuretvshow.domain.usecase.*
 import com.dev.tvmania.util.ApiBuilder
 import com.dev.tvmania.util.TV_MANIA_DATABASE
 import com.google.gson.Gson
@@ -54,7 +51,10 @@ object AppModule {
         return TvShowUseCases(
             getTvShows = GetTvShows(repository = repository),
             getTvShowDetail = GetTvShowDetail(repository = repository),
-            getCarouselImages = GetCarouselImages(repository= repository)
+            getCarouselImages = GetCarouselImages(repository= repository),
+            getCachedTvShowDetail = GetCachedTvShowDetail(repository = repository),
+            addOrRemoveTvShowBookmark = AddOrRemoveTvShowBookmark(repository = repository),
+            inBookmarks = InBookmarks(repository = repository)
         )
     }
 

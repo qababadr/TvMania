@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.tvmania.featuretvshow.domain.model.tvshowdetail.TvShowDetail
 import com.dev.tvmania.featuretvshow.domain.usecase.TvShowUseCases
-import com.dev.tvmania.util.Resource
 import com.dev.tvmania.util.TV_SHOW_ID_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,19 +26,35 @@ class TvShowDetailViewModel @Inject constructor(
     val tvShowDetailState: StateFlow<TvShowDetail?>
         get() = _tvShowDetailState
 
+    private val _inBookmarksState: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
+    val inBookmarksState: StateFlow<Boolean>
+         get() = _inBookmarksState
+
     init {
         savedStateHandle.get<String>(key = TV_SHOW_ID_KEY)?.let {
             val id = it.toLong()
 
             viewModelScope.launch {
                 _isLoading.value = true
-                _tvShowDetailState.value =
-                    when (val response = tvShowUseCases.getTvShowDetail(id = id)) {
-                        is Resource.Success -> response.data
-                        else -> null
+                launch {
+                    tvShowUseCases.getCachedTvShowDetail(id).collect{ resource ->
+                        _tvShowDetailState.value = resource.data
+                        _isLoading.value = false
                     }
-                _isLoading.value = false
+                }
+                launch {
+                    tvShowUseCases.inBookmarks(tvShowId = id).collect{ isBookmarked ->
+                        _inBookmarksState.value = isBookmarked
+                    }
+                }
             }
+        }
+    }
+
+
+    fun addOrRemoveTvShowBookmark(tvShowId: Long){
+        viewModelScope.launch {
+            tvShowUseCases.addOrRemoveTvShowBookmark(tvShowId = tvShowId)
         }
     }
 }

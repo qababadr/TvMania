@@ -2,6 +2,9 @@ package com.dev.tvmania.featuretvshow.data.repository
 
 import androidx.paging.*
 import com.dev.tvmania.featuretvshow.data.local.database.TvManiaDatabase
+import com.dev.tvmania.featuretvshow.data.local.entity.BookmarkEntity
+import com.dev.tvmania.featuretvshow.data.local.entity.TvShowDetailEntity
+import com.dev.tvmania.featuretvshow.data.local.entity.TvShowPersonCrossRef
 import com.dev.tvmania.featuretvshow.data.remote.api.Api
 import com.dev.tvmania.featuretvshow.data.repository.paging.TvShowRemoteMediator
 import com.dev.tvmania.featuretvshow.data.repository.paging.TvShowRemotePagingSource
@@ -12,6 +15,7 @@ import com.dev.tvmania.featuretvshow.domain.repository.TvShowRepository
 import com.dev.tvmania.util.PREFERRED_CAROUSEL_SLIDE_COUNT
 import com.dev.tvmania.util.RepositoryHelper
 import com.dev.tvmania.util.Resource
+import com.dev.tvmania.util.networkBoundResource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,6 +26,10 @@ class TvShowRepositoryImpl(
 ) : TvShowRepository, RepositoryHelper() {
 
     private val tvShowDao = database.tvShowDao()
+
+    private val personDao = database.personDao()
+
+    private val bookmarkDao = database.bookmarkDao()
 
 //    override fun getTvShows(pageSize: Int): Flow<PagingData<TvShow>> {
 //        return Pager(
@@ -64,5 +72,52 @@ class TvShowRepositoryImpl(
                     )
                 }
             }
+    }
+
+    override fun getCachedTvShowDetail(id: Long): Flow<Resource<TvShowDetail>> {
+        return networkBoundResource(
+            databaseQuery = {
+                tvShowDao.getTvShowDetail(id = id).map { it.toTvShowDetail() }
+            },
+            apiCall = {
+                api.getTvShowDetail(id = id)
+            },
+            saveApiCallResult = {
+                it?.let { tvShowDetailDto ->
+                    tvShowDao.insertTvShowDetail(
+                        tvShowDetail = TvShowDetailEntity(
+                            tvShowId = id,
+                            url = tvShowDetailDto.url,
+                            premiered = tvShowDetailDto.premiered,
+                            officialSite = tvShowDetailDto.officialSite,
+                            summery = tvShowDetailDto.summary
+                        )
+                    )
+
+                    val personEntities =
+                        tvShowDetailDto.embedded.cast.map { response -> response.person.toPersonEntity() }
+
+                    personDao.insertPersons(persons = personEntities)
+
+                    tvShowDao.insertTvShowPersonCrossRef(
+                        crossRefs = personEntities.map { personEntity ->
+                            TvShowPersonCrossRef(
+                                tvShowId = id,
+                                personId = personEntity.personId
+                            )
+                        }
+                    )
+                }
+            }
+        )
+    }
+
+    override suspend fun addOrRemoveTvShowBookmark(tvShowId: Long) {
+        val inserted = bookmarkDao.insertBookmark(bookmark = BookmarkEntity(tvShowId = tvShowId))
+        if(inserted == -1L) bookmarkDao.deleteBookmark(id = tvShowId)
+    }
+
+    override fun inBookMarks(tvShowId: Long): Flow<Boolean> {
+        return bookmarkDao.inBookmarks(id = tvShowId)
     }
 }
