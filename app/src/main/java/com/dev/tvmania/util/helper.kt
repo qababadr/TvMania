@@ -37,7 +37,7 @@ inline fun <Result, Request> networkBoundResource(
             onApiCallFailed(throwable)
             loading.cancel()
             databaseQuery().collect {
-                send(Resource.Error(it))
+                send(Resource.Error(it, throwable))
             }
         }
     } else {
